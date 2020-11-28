@@ -1,6 +1,10 @@
 import discord
+import json
 
 client = discord.Client()
+
+configJsonFile = open('config.json')
+jsonData = json.load(configJsonFile)
 
 @client.event
 async def on_ready():
@@ -14,4 +18,4 @@ async def on_message(message):
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
 
-client.run('NzgxOTM0ODk0NTE4NzYzNTYx.X8E3ng.LOI4gN5pPQSt8Yj8cAXBdPR58uY')
+client.run(jsonData['token']) #Referenciar la key
