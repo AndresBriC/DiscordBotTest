@@ -7,9 +7,23 @@ prefix = jsonData['prefix'] #Reference to the prefix stated in the config.json
 intents = discord.Intents(voice_states = True, members = True) #Specifies intents
 
 #Ideas:
-#Contador de días desde ultima salida a San Mike, Alexa play Despacito
+#Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
+
+inVoiceChannels = 0
 
 class MyClient(discord.Client):
+
+    #Returns True if member has "Bots" as a role
+    async def memberIsBot(self, member):
+        isABot = False
+
+        for roles in member.roles: #Loops for each role the member has
+            if roles == "Bots": #If the member has a role named "Bots"
+                print("Member is a bot")
+                isABot = True
+                break
+        
+        return isABot
 
     #Prints to console when ready
     async def on_ready(self):
@@ -29,31 +43,18 @@ class MyClient(discord.Client):
         #channel = client.get_channel(747620441916571765) #Gets the channel, given the ID
         generalTextChannel = discord.utils.get(member.guild.channels, name = 'general') #Looks for text channel named general
 
-        #global membersInChannelCounter
+        global inVoiceChannels
 
         if before.channel is None and after.channel is not None:
-            afterChannel = client.get_channel(after.channel.id)
-            members = afterChannel.members #Gets all members in the selected voice channel
-            memNames = [] #To store all members
-            for person in members: #Appends each member to the array
-                #print(person.name)
-                memNames.append(person.name)   
-            print(memNames)
-            print(member.name + " joined a voice channel")
+            inVoiceChannels += 1
+            print(member.name + " disconnected from " + after.channel.name)
 
         if before.channel is not None and after.channel is None:
-            beforeChannel = client.get_channel(before.channel.id)
-            members = beforeChannel.members #Gets all members in the selected voice channel
-            memNames = [] #To store all members
-            for person in members: #Appends each member to the array
-                #print(person.name)
-                memNames.append(person.name)           
-            print(memNames)
-            print(member.name + " disconnected from a voice channel")
-            await generalTextChannel.send(member.name + " disconnected from " + before.channel.name)
-            if(len(memNames) == 0): #If the number of people in the voice channel is 0
+            inVoiceChannels -= 1
+            print(member.name + " disconnected from " + before.channel.name)
+            if(inVoiceChannels == 0): #If the number of people in the voice channel is 0
                 print(member.name + " is gay lol")
-                await generalTextChannel.send(member.name + " is gay af :eggplant:")
+                #await generalTextChannel.send(member.name + " is gay af :eggplant:")
 
 client = MyClient()
 client.run(jsonData['token']) #Calls the key from the config.json file
