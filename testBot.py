@@ -13,7 +13,7 @@ class MyClient(discord.Client):
 
     #Prints to console when ready
     async def on_ready(self):
-        print('We have logged in as ' + self.user.name + " " + str(self.user.id))
+        print('We have logged in as ' + self.user.name + " ID: " + str(self.user.id))
 
     async def on_message(self, message):
         #Prevents bot from replying to itself
