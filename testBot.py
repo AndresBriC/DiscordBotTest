@@ -9,7 +9,7 @@ intents = discord.Intents(voice_states = True, members = True) #Specifies intent
 #Ideas:
 #Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
 
-inVoiceChannels = 0
+inVoiceChannels = 0 #Counts how many people are currently in any voice channel
 
 class MyClient(discord.Client):
 
@@ -39,22 +39,53 @@ class MyClient(discord.Client):
         if lowerCaseMessage == (prefix + "hello") or lowerCaseMessage == (prefix + "hi"): #Compares the lowercase version of the message
             await message.channel.send("Hello " + message.author.name)
 
+        if lowerCaseMessage == (prefix + "hegay?"):
+            await message.channel.send("He gay ")
+
+
     async def on_voice_state_update(self, member, before, after):
-        #channel = client.get_channel(747620441916571765) #Gets the channel, given the ID
         generalTextChannel = discord.utils.get(member.guild.channels, name = 'general') #Looks for text channel named general
 
-        global inVoiceChannels
+        global inVoiceChannels #Counts how many people are currently in any voice channel
 
+        #When the user joins a voice channel
         if before.channel is None and after.channel is not None:
-            inVoiceChannels += 1
-            print(member.name + " disconnected from " + after.channel.name)
+            isBot = False
 
+            #Checks if the member has the Bots role
+            for role in member.roles:
+                if str(role) == "Bots":
+                    print("A bot joined a voice channel")
+                    isBot = True
+            
+            #If the member is not a bot
+            if(isBot == False):
+                inVoiceChannels += 1
+                
+            print("People in voice channels: " + str(inVoiceChannels))
+            print(member.name + " connected to " + after.channel.name)
+
+        #When a user leaves the voice channels
         if before.channel is not None and after.channel is None:
-            inVoiceChannels -= 1
+            isBot = False
+
+            #Checks if the member has the Bots role
+            for role in member.roles:
+                if str(role) == "Bots":
+                    print("A bot left a voice channel")
+                    isBot = True
+            
+            #If the member is not a bot
+            if(isBot == False):
+                inVoiceChannels -= 1
+
+            print("People in voice channels: " + str(inVoiceChannels))
             print(member.name + " disconnected from " + before.channel.name)
-            if(inVoiceChannels == 0): #If the number of people in the voice channel is 0
+            
+            #If the number of people in the voice channel is 0
+            if(inVoiceChannels == 0 and isBot == False):
                 print(member.name + " is gay lol")
-                #await generalTextChannel.send(member.name + " is gay af :eggplant:")
+                await generalTextChannel.send(member.name + " is gay af :eggplant:")
 
 client = MyClient()
 client.run(jsonData['token']) #Calls the key from the config.json file
