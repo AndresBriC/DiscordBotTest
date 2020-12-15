@@ -33,7 +33,7 @@ def getIndexOfUser(user, df):
             return i
 
 #Returns True if member has "Bots" as a role
-async def memberIsBot(self, member):
+def memberIsBot(member):
     isABot = False
 
     #Checks if the member has the Bots role
@@ -44,6 +44,20 @@ async def memberIsBot(self, member):
             break
     
     return isABot
+
+#Adds user to the leaderboard if not present, if not, adds 1 point to the user
+def updateLastToLeaveLeaderBoard(memberName):
+    leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+
+    if userExists(memberName, leaderboardDf) == True:
+        index = getIndexOfUser(memberName, leaderboardDf)
+        leaderboardDf.at[index, 'Score'] = leaderboardDf.loc[index]['Score'] + 1
+        print("User was found")
+    else:
+        leaderboardDf = leaderboardDf.append({'User':memberName,'Score':1}, ignore_index=True)
+        print("User was added")
+
+    leaderboardDf.to_csv('LastToLeaveLeaderboard.csv')
 
 #-------------------------------COMMANDS-------------------------------#
 
@@ -70,19 +84,14 @@ async def on_ready():
 @client.event
 async def on_voice_state_update(member, before, after):
     generalTextChannel = discord.utils.get(member.guild.channels, name = 'general') #Looks for text channel named general
-    leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
 
     global inVoiceChannels #Counts how many people are currently in any voice channel
 
     #When the user joins a voice channel
     if before.channel is None and after.channel is not None:
-        isBot = False
 
         #Checks if the member has the Bots role
-        for role in member.roles:
-            if str(role) == "Bots":
-                print("A bot joined a voice channel")
-                isBot = True
+        isBot = memberIsBot(member)
         
         #If the member is not a bot
         if(isBot == False):
@@ -93,13 +102,7 @@ async def on_voice_state_update(member, before, after):
 
     #When a user leaves the voice channels
     if before.channel is not None and after.channel is None:
-        isBot = False
-
-        #Checks if the member has the Bots role
-        for role in member.roles:
-            if str(role) == "Bots":
-                print("A bot left a voice channel")
-                isBot = True
+        isBot = memberIsBot(member)
         
         #If the member is not a bot
         if(isBot == False and inVoiceChannels > 0):
@@ -111,17 +114,9 @@ async def on_voice_state_update(member, before, after):
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
             print(member.name + " is gay lol")
-            await generalTextChannel.send(member.name)
+            await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
 
-            #Adds user to the leaderboard if not present, if not, adds 1 point to the user
-            if userExists(member.name, leaderboardDf) == True:
-                index = getIndexOfUser(member.name, leaderboardDf)
-                leaderboardDf.at[index, 'Score'] = leaderboardDf.loc[index]['Score'] + 1
-                print("User was found")
-            else:
-                leaderboardDf = leaderboardDf.append({'User':member.name,'Score':1}, ignore_index=True)
-                print("User was added")
-
-            leaderboardDf.to_csv('LastToLeaveLeaderboard.csv')
+            #Updates the leaderboard
+            updateLastToLeaveLeaderBoard(member.name)
 
 client.run(token) #Calls the key from the config.json file
