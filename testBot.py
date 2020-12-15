@@ -15,6 +15,8 @@ client = commands.Bot(command_prefix = prefix)
 
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel
 
+#-------------------------------AUXILIARY FUNCTIONS#-------------------------------#
+
 #Returns a bool depending if the indicated user exists within the given pandas database
 def userExists(user, df):
     found = df[df['User'].str.contains(user)]
@@ -59,7 +61,7 @@ def updateLastToLeaveLeaderBoard(memberName):
 
     leaderboardDf.to_csv('LastToLeaveLeaderboard.csv')
 
-#-------------------------------COMMANDS-------------------------------#
+##-------------------------------COMMANDS#-------------------------------#
 
 @client.command()
 async def hegay(ctx):
@@ -70,16 +72,17 @@ async def hegay(ctx):
 async def hello(ctx):
     await ctx.send("Hello " + ctx.author.name)
 
+#Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
 @client.command()
 async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
-#----------------------------------------------------------------------#
+#-------------------------------EVENTS-------------------------------#
 
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    print('We have logged in as {0.user}'.format(client)) #Console on ready message
 
 @client.event
 async def on_voice_state_update(member, before, after):
@@ -97,6 +100,7 @@ async def on_voice_state_update(member, before, after):
         if(isBot == False):
             inVoiceChannels += 1
             
+        #Console messages
         print("People in voice channels: " + str(inVoiceChannels))
         print(member.name + " connected to " + after.channel.name)
 
@@ -108,6 +112,7 @@ async def on_voice_state_update(member, before, after):
         if(isBot == False and inVoiceChannels > 0):
             inVoiceChannels -= 1
 
+        #Console messages
         print("People in voice channels: " + str(inVoiceChannels))
         print(member.name + " disconnected from " + before.channel.name)
         
