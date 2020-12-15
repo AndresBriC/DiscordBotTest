@@ -1,6 +1,9 @@
 import discord
+from discord.ext import commands
 import json
+import pandas
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 client = discord.Client()
 
@@ -9,6 +12,10 @@ jsonData = json.load(configJsonFile)
 =======
 configJsonFile = open('config.json') #config.json contains the token and prefix
 jsonData = json.load(configJsonFile)
+=======
+configJsonFile = open('config.json') #config.json contains the token and prefix
+jsonData = json.load(configJsonFile)
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 prefix = jsonData['prefix'] #Reference to the prefix stated in the config.json
 token = jsonData['token']
 intents = discord.Intents(voice_states = True, members = True) #Specifies intents
@@ -17,9 +24,13 @@ client = commands.Bot(command_prefix = prefix)
 #Ideas:
 #Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
 
+<<<<<<< HEAD
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel, not sure if this is good practice cause globals
 
 #-------------------------------AUXILIARY FUNCTIONS-------------------------------#
+=======
+inVoiceChannels = 0 #Counts how many people are currently in any voice channel
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 
 #Returns a bool depending if the indicated user exists within the given pandas database
 def userExists(user, df):
@@ -76,25 +87,35 @@ async def hegay(ctx):
 async def hello(ctx):
     await ctx.send("Hello " + ctx.author.name)
 
+<<<<<<< HEAD
 #Prints the LastToLeaveLeaderboard as a discord message, without indexes and headers
+=======
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 @client.command()
 async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
+<<<<<<< HEAD
 #------------------------------------EVENTS------------------------------------#
 >>>>>>> Stashed changes
+=======
+#----------------------------------------------------------------------#
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
 @client.event
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 async def on_message(message):
     if message.author == client.user:
         return
 =======
+=======
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 async def on_voice_state_update(member, before, after):
     generalTextChannel = discord.utils.get(member.guild.channels, name = 'general') #Looks for text channel named general
 
@@ -109,8 +130,12 @@ async def on_voice_state_update(member, before, after):
         #If the member is not a bot
         if(isBot == False):
             inVoiceChannels += 1
+<<<<<<< HEAD
         
         #Console display
+=======
+            
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
         print("People in voice channels: " + str(inVoiceChannels))
         print(member.name + " connected to " + after.channel.name)
 
@@ -122,17 +147,25 @@ async def on_voice_state_update(member, before, after):
         if(isBot == False and inVoiceChannels > 0):
             inVoiceChannels -= 1
 
+<<<<<<< HEAD
         #Console display
+=======
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
         print("People in voice channels: " + str(inVoiceChannels))
         print(member.name + " disconnected from " + before.channel.name)
         
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
+<<<<<<< HEAD
             print(member.name + " was the last to leave")
             await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
 >>>>>>> Stashed changes
+=======
+            print(member.name + " is gay lol")
+            await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
+>>>>>>> ab0b1cffa2571215fe71e6c4bb2d7ea692ca76e2
 
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
+            #Updates the leaderboard
+            updateLastToLeaveLeaderBoard(member.name)
 
-client.run(jsonData['token']) #Referenciar la key
+client.run(token) #Calls the key from the config.json file
