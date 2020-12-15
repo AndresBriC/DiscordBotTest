@@ -56,6 +56,11 @@ async def hegay(ctx):
 async def hello(ctx):
     await ctx.send("Hello " + ctx.author.name)
 
+@client.command()
+async def leaderboard(ctx):
+    leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+    await ctx.send(leaderboardDf.to_string(index=False, header=False))
+
 #----------------------------------------------------------------------#
 
 @client.event
