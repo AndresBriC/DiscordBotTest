@@ -61,7 +61,7 @@ def updateLastToLeaveLeaderBoard(memberName):
 
     leaderboardDf.to_csv('LastToLeaveLeaderboard.csv')
 
-##-------------------------------COMMANDS#-------------------------------#
+#-------------------------------COMMANDS-------------------------------#
 
 @client.command()
 async def hegay(ctx):
