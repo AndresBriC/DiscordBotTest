@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
-import json
 import pandas
 
-configJsonFile = open('config.json') #config.json contains the token and prefix
-jsonData = json.load(configJsonFile)
-prefix = jsonData['prefix'] #Reference to the prefix stated in the config.json
-token = jsonData['token']
+import os
+from dotenv import load_dotenv
+load_dotenv()
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+
+prefix = "$" #Sets the prefix
 intents = discord.Intents(voice_states = True, members = True) #Specifies intents
 client = commands.Bot(command_prefix = prefix)
 
@@ -124,4 +125,4 @@ async def on_voice_state_update(member, before, after):
             #Updates the leaderboard
             updateLastToLeaveLeaderBoard(member.name)
 
-client.run(token) #Calls the key from the config.json file
+client.run(DISCORD_TOKEN) #Calls the key from the config.json file
