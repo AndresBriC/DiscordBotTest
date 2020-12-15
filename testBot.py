@@ -15,7 +15,7 @@ client = commands.Bot(command_prefix = prefix)
 
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel
 
-#-------------------------------AUXILIARY FUNCTIONS#-------------------------------#
+#-------------------------------AUXILIARY FUNCTIONS-------------------------------#
 
 #Returns a bool depending if the indicated user exists within the given pandas database
 def userExists(user, df):
