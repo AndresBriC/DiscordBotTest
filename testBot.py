@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import json
 import pandas
+import random
 
 configJsonFile = open('config.json') #config.json contains the token and prefix
 jsonData = json.load(configJsonFile)
@@ -13,7 +14,10 @@ client = commands.Bot(command_prefix = prefix)
 #Ideas:
 #Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
 
+#-------------------------------GLOBAL VARIABLES----------------------------------#
+
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel
+pollIsActive = False
 
 #-------------------------------AUXILIARY FUNCTIONS-------------------------------#
 
@@ -65,7 +69,7 @@ def updateLastToLeaveLeaderBoard(memberName):
 
 @client.command()
 async def hegay(ctx):
-    await ctx.send("He gay")
+    await ctx.send("El que use este comando le gusta besar hombres")
 
 #Greets the person that calls the command
 @client.command()
@@ -77,6 +81,38 @@ async def hello(ctx):
 async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
+
+#Opens a poll with n number of options
+@client.command()
+async def poll(ctx, *options):
+    index = 1 #Used to number each option
+    global pollIsActive
+
+    #Options display
+    for option in options:       
+        await ctx.send(str(index) + " - "  + option + "\n")
+        index += 1
+        if index == 11:
+            break
+
+#Sends a message for each word in lyrics until the 25th
+@client.command()
+@commands.cooldown(1, 60)
+async def sing(ctx, *lyrics):
+    limitCounter = 0
+
+    for word in lyrics:
+        limitCounter += 1       
+        await ctx.send(word + "\n")
+        if limitCounter == 26:
+            break
+
+#Prints a random choice
+@client.command()
+async def amIDumb(ctx):
+
+    await ctx.send(random.choice(["Yes", "No"]))
+    
 
 #-------------------------------EVENTS-------------------------------#
 
@@ -123,5 +159,9 @@ async def on_voice_state_update(member, before, after):
 
             #Updates the leaderboard
             updateLastToLeaveLeaderBoard(member.name)
+
+@client.event
+async def on_command_error(ctx, error):
+    await ctx.send(error) #To notify discord users of the error
 
 client.run(token) #Calls the key from the config.json file
