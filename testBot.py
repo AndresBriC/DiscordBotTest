@@ -1,15 +1,16 @@
 import discord
 from discord.ext import commands
-import json
 import pandas
 import random
 
-configJsonFile = open('config.json') #config.json contains the token and prefix
-jsonData = json.load(configJsonFile)
-prefix = jsonData['prefix'] #Reference to the prefix stated in the config.json
-token = jsonData['token']
-intents = discord.Intents(voice_states = True, members = True) #Specifies intents
-client = commands.Bot(command_prefix = prefix)
+import os
+from dotenv import load_dotenv
+load_dotenv()
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+
+prefix = "$" #Sets the prefix
+intents = discord.Intents.all() #Specifies intents
+client = commands.Bot(command_prefix = prefix, intents = intents)
 
 #Ideas:
 #Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
@@ -84,6 +85,7 @@ async def leaderboard(ctx):
 
 #Opens a poll with n number of options
 @client.command()
+@commands.cooldown(1, 60)
 async def poll(ctx, *options):
     index = 1 #Used to number each option
     global pollIsActive
@@ -95,9 +97,9 @@ async def poll(ctx, *options):
         if index == 11:
             break
 
-#Sends a message for each word in lyrics until the 25th
+#Sends a message for each word in lyrics until the 25th word
 @client.command()
-@commands.cooldown(1, 60)
+@commands.cooldown(1, 60) #Sets a cooldown of a minute after one use
 async def sing(ctx, *lyrics):
     limitCounter = 0
 
@@ -110,8 +112,14 @@ async def sing(ctx, *lyrics):
 #Prints a random choice
 @client.command()
 async def amIDumb(ctx):
-
     await ctx.send(random.choice(["Yes", "No"]))
+
+#Returns a response from one of 20 choices taken from the 8 Ball toy
+@client.command()
+async def eightBall(ctx, help):
+    help = "Picks a random option from a magic 8 Ball"
+
+    await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
     
 
 #-------------------------------EVENTS-------------------------------#
@@ -154,14 +162,19 @@ async def on_voice_state_update(member, before, after):
         
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
-            print(member.name + " is gay lol")
+            print(member.name + " wa the last to leave")
             await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
 
             #Updates the leaderboard
-            updateLastToLeaveLeaderBoard(member.name)
+            #updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
+
+@client.event
+async def on_typing(channel, user, when):
+    if random.randint(0,1000) == 1: #Generates a number from 1 to 1000
+        await channel.send('Ke andas escriviendo') #If the random number was 1, send this message
 
 @client.event
 async def on_command_error(ctx, error):
     await ctx.send(error) #To notify discord users of the error
 
-client.run(token) #Calls the key from the config.json file
+client.run(DISCORD_TOKEN) #Calls the key from the env file
