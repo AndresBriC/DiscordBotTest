@@ -4,6 +4,7 @@ from discord.utils import get
 
 import pandas
 import random
+import datetime
 
 import os
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ intents = discord.Intents.all() #Specifies intents
 client = commands.Bot(command_prefix = prefix, intents = intents)
 
 #Ideas:
-#Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
+#Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz, integracion con API de league
 
 #-------------------------------GLOBAL VARIABLES----------------------------------#
 
@@ -77,6 +78,14 @@ async def hegay(ctx):
 @client.command()
 async def hello(ctx):
     await ctx.send("Hello " + ctx.author.name)
+
+@client.command()
+async def sadmike(ctx):
+    ultimoSanMike = datetime.datetime(2019,11,7)
+    hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
+    diasDesdeSanMike = hoyEnFecha.date()-ultimoSanMike.date()
+
+    await ctx.send(str(diasDesdeSanMike.days) + " dias desde San Mike :(")
 
 #Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
 @client.command()
