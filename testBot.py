@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
+
 import pandas
 import random
 
@@ -18,7 +20,6 @@ client = commands.Bot(command_prefix = prefix, intents = intents)
 #-------------------------------GLOBAL VARIABLES----------------------------------#
 
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel
-pollIsActive = False
 
 #-------------------------------AUXILIARY FUNCTIONS-------------------------------#
 
@@ -83,19 +84,43 @@ async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
-#Opens a poll with n number of options
+#Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll
 @client.command()
-@commands.cooldown(1, 60)
 async def poll(ctx, *options):
     index = 1 #Used to number each option
-    global pollIsActive
+    completePoll = "" #Used to display all the poll options
+    #Emoji letters from a to j 
+    emojiLetters = [
+            "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER C}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER D}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER E}", 
+            "\N{REGIONAL INDICATOR SYMBOL LETTER F}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER G}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER H}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER I}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER J}"
+    ]
 
-    #Options display
-    for option in options:       
-        await ctx.send(str(index) + " - "  + option + "\n")
+    #Builds the embed with all the options
+    for option in options:
+        completePoll += emojiLetters[index-1] + " - "  + option + "\n\n"
         index += 1
-        if index == 11:
+        if index == 11: #Stops the options at the 10th
             break
+
+    embedPollMsg = discord.Embed(title = "POLL", description = completePoll, color = discord.Colour.red()) #Creates the embed
+    pollMsg = await ctx.message.channel.send(embed=embedPollMsg) #Sends the embed message and asigns it to a variable
+    
+    #Does another loop to add the reactions for easy access
+    index = 1
+    for option in options:
+        await pollMsg.add_reaction(emojiLetters[index-1])    
+        index += 1
+        if index == 11: #Stops the options at the 10th
+            break
+
 
 #Sends a message for each word in lyrics until the 25th word
 @client.command()
@@ -116,9 +141,7 @@ async def amIDumb(ctx):
 
 #Returns a response from one of 20 choices taken from the 8 Ball toy
 @client.command()
-async def eightBall(ctx, help):
-    help = "Picks a random option from a magic 8 Ball"
-
+async def eightBall(ctx):
     await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
     
 
@@ -162,8 +185,8 @@ async def on_voice_state_update(member, before, after):
         
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
-            print(member.name + " wa the last to leave")
-            await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
+            print(member.name + " was the last to leave")
+            await generalTextChannel.send(member.name + ' was the last to leave') #Last to leave message
 
             #Updates the leaderboard
             #updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
