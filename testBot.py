@@ -84,7 +84,7 @@ async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
-#Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll
+#Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll and https://github.com/stayingqold/Poll-Bot/blob/master/cogs/poll.py
 @client.command()
 async def poll(ctx, *options):
     index = 1 #Used to number each option
