@@ -1,6 +1,9 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
+
 import pandas
+import random
 
 import os
 from dotenv import load_dotenv
@@ -8,11 +11,13 @@ load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 prefix = "$" #Sets the prefix
-intents = discord.Intents(voice_states = True, members = True) #Specifies intents
-client = commands.Bot(command_prefix = prefix)
+intents = discord.Intents.all() #Specifies intents
+client = commands.Bot(command_prefix = prefix, intents = intents)
 
 #Ideas:
 #Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz
+
+#-------------------------------GLOBAL VARIABLES----------------------------------#
 
 inVoiceChannels = 0 #Counts how many people are currently in any voice channel
 
@@ -66,7 +71,7 @@ def updateLastToLeaveLeaderBoard(memberName):
 
 @client.command()
 async def hegay(ctx):
-    await ctx.send("He gay")
+    await ctx.send("El que use este comando le gusta besar hombres")
 
 #Greets the person that calls the command
 @client.command()
@@ -78,6 +83,67 @@ async def hello(ctx):
 async def leaderboard(ctx):
     leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
+
+#Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll
+@client.command()
+async def poll(ctx, *options):
+    index = 1 #Used to number each option
+    completePoll = "" #Used to display all the poll options
+    #Emoji letters from a to j 
+    emojiLetters = [
+            "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER C}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER D}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER E}", 
+            "\N{REGIONAL INDICATOR SYMBOL LETTER F}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER G}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER H}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER I}",
+            "\N{REGIONAL INDICATOR SYMBOL LETTER J}"
+    ]
+
+    #Builds the embed with all the options
+    for option in options:
+        completePoll += emojiLetters[index-1] + " - "  + option + "\n\n"
+        index += 1
+        if index == 11: #Stops the options at the 10th
+            break
+
+    embedPollMsg = discord.Embed(title = "POLL", description = completePoll, color = discord.Colour.red()) #Creates the embed
+    pollMsg = await ctx.message.channel.send(embed=embedPollMsg) #Sends the embed message and asigns it to a variable
+    
+    #Does another loop to add the reactions for easy access
+    index = 1
+    for option in options:
+        await pollMsg.add_reaction(emojiLetters[index-1])    
+        index += 1
+        if index == 11: #Stops the options at the 10th
+            break
+
+
+#Sends a message for each word in lyrics until the 25th word
+@client.command()
+@commands.cooldown(1, 60) #Sets a cooldown of a minute after one use
+async def sing(ctx, *lyrics):
+    limitCounter = 0
+
+    for word in lyrics:
+        limitCounter += 1       
+        await ctx.send(word + "\n")
+        if limitCounter == 26:
+            break
+
+#Prints a random choice
+@client.command()
+async def amIDumb(ctx):
+    await ctx.send(random.choice(["Yes", "No"]))
+
+#Returns a response from one of 20 choices taken from the 8 Ball toy
+@client.command()
+async def eightBall(ctx):
+    await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
+    
 
 #-------------------------------EVENTS-------------------------------#
 
@@ -119,10 +185,19 @@ async def on_voice_state_update(member, before, after):
         
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
-            print(member.name + " is gay lol")
-            await generalTextChannel.send(member.name + ' was the last to leave :)') #Last to leave message
+            print(member.name + " was the last to leave")
+            await generalTextChannel.send(member.name + ' was the last to leave') #Last to leave message
 
             #Updates the leaderboard
-            updateLastToLeaveLeaderBoard(member.name)
+            #updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
 
-client.run(DISCORD_TOKEN) #Calls the key from the config.json file
+@client.event
+async def on_typing(channel, user, when):
+    if random.randint(0,1000) == 1: #Generates a number from 1 to 1000
+        await channel.send('Ke andas escriviendo') #If the random number was 1, send this message
+
+@client.event
+async def on_command_error(ctx, error):
+    await ctx.send(error) #To notify discord users of the error
+
+client.run(DISCORD_TOKEN) #Calls the key from the env file
