@@ -85,7 +85,7 @@ async def sadmike(ctx):
     hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
     diasDesdeSanMike = hoyEnFecha.date()-ultimoSanMike.date()
 
-    await ctx.send(str(diasDesdeSanMike.days) + " dias desde San Mike :(")
+    await ctx.send(str(diasDesdeSanMike.days) + " dias desde que se hizo San Mike :(")
 
 #Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
 @client.command()
