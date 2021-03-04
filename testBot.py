@@ -116,6 +116,34 @@ class dumbStuff(commands.Cog, name = "Dumb Stuff"):
     async def eightball(self, ctx):
         await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
 
+    #Makes a triangle pattern with a given word
+    @commands.command(brief = "Turns a word into a pyramid.", help = "Turns single a word into a pyramid, limited to short words.")
+    async def pyramid(self, ctx, word):
+        
+        triangleWord = ""
+        lengthLimit = 12
+
+        if len(word) < lengthLimit:
+            #From the first letter to the full word
+            for i in range(0, len(word)+1):
+                triangleWord += word[:i] + "\n"
+
+            #From full word-1 to first letter
+            for i in range(len(word)-1, -1, -1):
+                triangleWord += word[:i] + "\n"
+            
+            await ctx.send(triangleWord)
+        else:
+            await ctx.send("Word is too large, limit is " + str(lengthLimit) + " characters.")
+    
+    #Lets a user spam ping another user once per hour
+    @commands.command(brief = "Spam pings a user", help = "Spam pings a user. Limited to one use per hour.")
+    @commands.cooldown(1,3600)
+    async def spamping(self, ctx, user):
+        for i in range (0,16):
+            await ctx.send(user)
+
+
 #Useful stuff cog
 class usefulStuff(commands.Cog, name = "Useful Stuff"):
 #Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll and https://github.com/stayingqold/Poll-Bot/blob/master/cogs/poll.py
@@ -147,7 +175,7 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
         embedPollMsg = discord.Embed(title = pollTitle, description = completePoll, color = discord.Colour.red()) #Creates the embed
         pollMsg = await ctx.message.channel.send(embed=embedPollMsg) #Sends the embed message and asigns it to a variable
         
-        #Does another loop to add the reactions for easy access
+        #Does another loop to add the reactions
         index = 1
         for option in options:
             await pollMsg.add_reaction(emojiLetters[index-1])    
