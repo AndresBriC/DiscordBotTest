@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-import pandas
+import pandas as pd
 import random
 import datetime
 
@@ -10,6 +10,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+
+RIOT_API_KEY = os.getenv("RIOT_API_KEY")
 
 prefix = "$" #Sets the prefix
 intents = discord.Intents.all() #Specifies intents
@@ -56,7 +58,7 @@ def memberIsBot(member):
 
 #Adds user to the leaderboard if not present, if not, adds 1 point to the user
 def updateLastToLeaveLeaderBoard(memberName):
-    leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+    leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
 
     if userExists(memberName, leaderboardDf) == True:
         index = getIndexOfUser(memberName, leaderboardDf)
@@ -70,16 +72,12 @@ def updateLastToLeaveLeaderBoard(memberName):
 
 #-------------------------------COMMANDS-------------------------------#
 
-@client.command()
-async def hegay(ctx):
-    await ctx.send("El que use este comando le gusta besar hombres")
-
 #Greets the person that calls the command
-@client.command()
+@client.command(help = "Greet the bot :D")
 async def hello(ctx):
     await ctx.send("Hello " + ctx.author.name)
 
-@client.command()
+@client.command(help = "Shows the amount of days since we went to San Mike :'(")
 async def sadmike(ctx):
     ultimoSanMike = datetime.datetime(2019,11,7)
     hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
@@ -88,13 +86,13 @@ async def sadmike(ctx):
     await ctx.send(str(diasDesdeSanMike.days) + " dias desde que se hizo San Mike :(")
 
 #Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
-@client.command()
+@client.command(help = "Shows who has left last the most.")
 async def leaderboard(ctx):
-    leaderboardDf = pandas.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+    leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
     await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
 #Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll and https://github.com/stayingqold/Poll-Bot/blob/master/cogs/poll.py
-@client.command()
+@client.command(help = "Lets you run a poll with up to 10 options. Put each option between quotation marks.")
 async def poll(ctx, *options):
     index = 1 #Used to number each option
     completePoll = "" #Used to display all the poll options
@@ -132,7 +130,7 @@ async def poll(ctx, *options):
 
 
 #Sends a message for each word in lyrics until the 25th word
-@client.command()
+@client.command(help = "Lets the bot repeat up to 25 words you say.")
 @commands.cooldown(1, 60) #Sets a cooldown of a minute after one use
 async def sing(ctx, *lyrics):
     limitCounter = 0
@@ -144,15 +142,14 @@ async def sing(ctx, *lyrics):
             break
 
 #Prints a random choice
-@client.command()
+@client.command(help = "In case you wanna know.")
 async def amIDumb(ctx):
     await ctx.send(random.choice(["Yes", "No"]))
 
 #Returns a response from one of 20 choices taken from the 8 Ball toy
-@client.command()
+@client.command(help = "Ask a yes/no question, and you'll be answered with the truth.")
 async def eightBall(ctx):
     await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
-    
 
 #-------------------------------EVENTS-------------------------------#
 
