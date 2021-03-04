@@ -72,84 +72,88 @@ def updateLastToLeaveLeaderBoard(memberName):
 
 #-------------------------------COMMANDS-------------------------------#
 
-#Greets the person that calls the command
-@client.command(help = "Greet the bot :D")
-async def hello(ctx):
-    await ctx.send("Hello " + ctx.author.name)
+#Dumb sutff cog
+class dumbStuff(commands.Cog, name = "Dumb Stuff"):
 
-@client.command(help = "Shows the amount of days since we went to San Mike :'(")
-async def sadmike(ctx):
-    ultimoSanMike = datetime.datetime(2019,11,7)
-    hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
-    diasDesdeSanMike = hoyEnFecha.date()-ultimoSanMike.date()
+    #Greets the person that calls the command
+    @commands.command(help = "Greet the bot :D")
+    async def hello(self, ctx):
+        await ctx.send("Hello " + ctx.author.name)
 
-    await ctx.send(str(diasDesdeSanMike.days) + " dias desde que se hizo San Mike :(")
+    @commands.command(help = "Shows the amount of days since we went to San Mike :'(")
+    async def sadmike(self, ctx):
+        ultimoSanMike = datetime.datetime(2019,11,7)
+        hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
+        diasDesdeSanMike = hoyEnFecha.date()-ultimoSanMike.date()
 
-#Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
-@client.command(help = "Shows who has left last the most.")
-async def leaderboard(ctx):
-    leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
-    await ctx.send(leaderboardDf.to_string(index=False, header=False))
+        await ctx.send(str(diasDesdeSanMike.days) + " dias desde que se hizo San Mike :(")
 
+    #Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
+    @commands.command(help = "Shows who has left last the most.")
+    async def leaderboard(self, ctx):
+        leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+        await ctx.send(leaderboardDf.to_string(index=False, header=False))
+
+    #Sends a message for each word in lyrics until the 25th word
+    @commands.command(brief = "Lets the bot repeat up to 25 words you say.", help = "Lets the bot repeat up to 25 words you say. Has a minute cooldown to prevent spam.")
+    @commands.cooldown(1, 60) #Sets a cooldown of a minute after one use
+    async def sing(self, ctx, *lyrics):
+        limitCounter = 0
+
+        for word in lyrics:
+            limitCounter += 1       
+            await ctx.send(word + "\n")
+            if limitCounter == 26:
+                break
+
+    #Prints a random choice
+    @commands.command(help = "In case you wanna know.")
+    async def amidumb(self, ctx):
+        await ctx.send(random.choice(["Yes", "No"]))
+
+    #Returns a response from one of 20 choices taken from the 8 Ball toy
+    @commands.command(help = "Ask a yes/no question and you'll be answered with the truth.")
+    async def eightball(self, ctx):
+        await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
+
+#Useful stuff cog
+class usefulStuff(commands.Cog, name = "Useful Stuff"):
 #Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll and https://github.com/stayingqold/Poll-Bot/blob/master/cogs/poll.py
-@client.command(help = "Lets you run a poll with up to 10 options. Put each option between quotation marks.")
-async def poll(ctx, *options):
-    index = 1 #Used to number each option
-    completePoll = "" #Used to display all the poll options
-    #Emoji letters from a to j 
-    emojiLetters = [
-            "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER C}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER D}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER E}", 
-            "\N{REGIONAL INDICATOR SYMBOL LETTER F}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER G}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER H}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER I}",
-            "\N{REGIONAL INDICATOR SYMBOL LETTER J}"
-    ]
+    @commands.command(brief = "Lets you run a 10 option poll.", help = "Lets you run a poll with up to 10 options. Put each option and the title between quotation marks.")
+    async def poll(self, ctx, pollTitle, *options):
+        index = 1 #Used to number each option
+        completePoll = "" #Used to display all the poll options
+        #Emoji letters from a to j 
+        emojiLetters = [
+                "\N{REGIONAL INDICATOR SYMBOL LETTER A}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER B}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER C}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER D}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER E}", 
+                "\N{REGIONAL INDICATOR SYMBOL LETTER F}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER G}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER H}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER I}",
+                "\N{REGIONAL INDICATOR SYMBOL LETTER J}"
+        ]
 
-    #Builds the embed with all the options
-    for option in options:
-        completePoll += emojiLetters[index-1] + " - "  + option + "\n\n"
-        index += 1
-        if index == 11: #Stops the options at the 10th
-            break
+        #Builds the embed with all the options
+        for option in options:
+            completePoll += emojiLetters[index-1] + " - "  + option + "\n\n"
+            index += 1
+            if index == 11: #Stops the options at the 10th
+                break
 
-    embedPollMsg = discord.Embed(title = "POLL", description = completePoll, color = discord.Colour.red()) #Creates the embed
-    pollMsg = await ctx.message.channel.send(embed=embedPollMsg) #Sends the embed message and asigns it to a variable
-    
-    #Does another loop to add the reactions for easy access
-    index = 1
-    for option in options:
-        await pollMsg.add_reaction(emojiLetters[index-1])    
-        index += 1
-        if index == 11: #Stops the options at the 10th
-            break
-
-
-#Sends a message for each word in lyrics until the 25th word
-@client.command(help = "Lets the bot repeat up to 25 words you say.")
-@commands.cooldown(1, 60) #Sets a cooldown of a minute after one use
-async def sing(ctx, *lyrics):
-    limitCounter = 0
-
-    for word in lyrics:
-        limitCounter += 1       
-        await ctx.send(word + "\n")
-        if limitCounter == 26:
-            break
-
-#Prints a random choice
-@client.command(help = "In case you wanna know.")
-async def amIDumb(ctx):
-    await ctx.send(random.choice(["Yes", "No"]))
-
-#Returns a response from one of 20 choices taken from the 8 Ball toy
-@client.command(help = "Ask a yes/no question, and you'll be answered with the truth.")
-async def eightBall(ctx):
-    await ctx.send(random.choice(["En mi opinión, sí", "Es cierto", "Es decididamente así", "Probablemente", "Buen pronóstico", "Todo apunta a que sí", "Sin duda", "Sí", "Sí - definitivamente", "Debes confiar en ello", "Respuesta vaga, vuelve a intentarlo", "Pregunta en otro momento", "Será mejor que no te lo diga ahora", "No puedo predecirlo ahora", "Concéntrate y vuelve a preguntar", "No cuentes con ello", "Mi respuesta es no", "Mis fuentes me dicen que no", "Las perspectivas no son buenas", "Muy dudoso"]))
+        embedPollMsg = discord.Embed(title = pollTitle, description = completePoll, color = discord.Colour.red()) #Creates the embed
+        pollMsg = await ctx.message.channel.send(embed=embedPollMsg) #Sends the embed message and asigns it to a variable
+        
+        #Does another loop to add the reactions for easy access
+        index = 1
+        for option in options:
+            await pollMsg.add_reaction(emojiLetters[index-1])    
+            index += 1
+            if index == 11: #Stops the options at the 10th
+                break
 
 #-------------------------------EVENTS-------------------------------#
 
@@ -205,5 +209,9 @@ async def on_typing(channel, user, when):
 @client.event
 async def on_command_error(ctx, error):
     await ctx.send(error) #To notify discord users of the error
+
+#Adds cogs
+client.add_cog(dumbStuff(client))
+client.add_cog(usefulStuff(client))
 
 client.run(DISCORD_TOKEN) #Calls the key from the env file
