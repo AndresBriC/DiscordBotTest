@@ -18,7 +18,7 @@ intents = discord.Intents.all() #Specifies intents
 client = commands.Bot(command_prefix = prefix, intents = intents)
 
 #Ideas:
-#Contador de días desde ultima salida a San Mike, Alexa play Despacito con comando de voz, integracion con API de league
+#Alexa play Despacito con comando de voz, integracion con API de league
 
 #-------------------------------GLOBAL VARIABLES----------------------------------#
 
@@ -224,7 +224,7 @@ async def on_voice_state_update(member, before, after):
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
             print(member.name + " was the last to leave")
-            await generalTextChannel.send(member.name + ' was the last to leave') #Last to leave message
+            await generalTextChannel.send(random.choice([member.name + " is slow af lmao", member.name + " ate dirt", member.name + " es un huevo jodido", member.name + " was eaten by zombies"])) #Last to leave message
 
             #Updates the leaderboard
             #updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
