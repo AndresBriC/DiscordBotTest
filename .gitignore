@@ -126,4 +126,4 @@ dmypy.json
 
 #Extra
 config.json
-*.png
+\.png
