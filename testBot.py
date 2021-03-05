@@ -188,6 +188,9 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client)) #Console on ready message
+    
+    #Adds current activity
+    await client.change_presence(activity=discord.Game(name='$help'))
 
 @client.event
 async def on_voice_state_update(member, before, after):
