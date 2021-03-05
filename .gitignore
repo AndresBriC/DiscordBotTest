@@ -126,4 +126,6 @@ dmypy.json
 
 #Extra
 config.json
-\.png
+
+# Portable Network Graphics
+*.png
