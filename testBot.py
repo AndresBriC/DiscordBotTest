@@ -6,6 +6,12 @@ import pandas as pd
 import random
 import datetime
 
+#For web scrapping
+import requests
+from bs4 import BeautifulSoup
+
+from io import BytesIO
+
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -146,6 +152,7 @@ class dumbStuff(commands.Cog, name = "Dumb Stuff"):
 
 #Useful stuff cog
 class usefulStuff(commands.Cog, name = "Useful Stuff"):
+
 #Opens a poll with n, up to 10 number of options, inspired by the Simple Poll bot https://top.gg/bot/simplepoll and https://github.com/stayingqold/Poll-Bot/blob/master/cogs/poll.py
     @commands.command(brief = "Lets you run a 10 option poll.", help = "Lets you run a poll with up to 10 options. Put each option and the title between quotation marks.")
     async def poll(self, ctx, pollTitle, *options):
@@ -183,6 +190,84 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
             if index == 11: #Stops the options at the 10th
                 break
 
+    @commands.command(brief = 'Gene slicing tool', help = 'Type ' + prefix + "geneslice and the justpaste.it URL containing ONLY the gene you want to slice.")
+    async def geneslice(self, ctx, url):
+        
+        messageToSend = ""
+
+        page = requests.get(str(url)) 
+        soup = BeautifulSoup(page.content, 'html.parser')
+
+        siteText = soup.select('p')#Gets all the <p>'s in the site
+
+        geneSequence = siteText[0].text #Extracts the first one, which contains the gene sequence in the case of justpaste.it
+        geneLength = len(geneSequence)
+
+        #Important codons
+        startingCodon = "ATG"
+        stoppingCodon1 = "TAG"
+        stoppingCodon2 = "TAA"
+        stoppingCodon3 = "TGA"
+
+        #Variables for codon checking
+        codonDict = {"name"  : ' ', "position" : 0}
+        currentCodon = " "
+        currentCodonPos = 0
+
+        #CDS info
+        cdsStartingPos = 0
+        cdsWithLastPiece = ""
+        cdsWithoutLastPiece = ""
+
+        #Groups every three nucleotide and returns the codon and the position of the next codon
+        def codonFinder(geneToParse, nextCodonPos):
+            codonToReturn = geneToParse[nextCodonPos] + geneToParse[nextCodonPos + 1] + geneToParse[nextCodonPos + 2]
+            
+            return {'name' : codonToReturn, 'position' : nextCodonPos + 3}
+
+        messageToSend = ("Original gene sequece: " + geneSequence)
+        messageToSend += "\n" + ("Gene length: " + str(geneLength))
+
+        #Checks the gene until the end is reached
+        while(currentCodonPos <= (geneLength-3)):
+
+            codonDict = codonFinder(geneSequence, currentCodonPos)
+            currentCodonPos = codonDict["position"] #Updates the current codon's position
+
+            #Stops the loop when the starting codon is found
+            if codonDict['name'] == startingCodon:
+                messageToSend += "\n\n" + ("Found the starting codon at position: " + str(currentCodonPos-2))
+                cdsStartingPos = currentCodonPos-2
+                break
+
+        #Stores the CDS based on the last loop's info
+        cdsWithLastPiece = geneSequence[cdsStartingPos-1:geneLength]
+
+        messageToSend += "\n" + ("CDS with last piece: \n" + cdsWithLastPiece)
+
+        #Checks the gene until the end is reached
+        while(currentCodonPos <= (geneLength-3)):
+
+            codonDict = codonFinder(geneSequence, currentCodonPos)
+            currentCodonPos = codonDict["position"] #Updates the current codon's position
+
+            #Stops the loop when the starting codon is found
+            if codonDict['name'] == stoppingCodon1 or codonDict['name'] == stoppingCodon2 or codonDict['name'] == stoppingCodon3:
+                messageToSend += "\n\n" + ("Found the stopping codon at position: " + str(currentCodonPos-2))
+                messageToSend += "\n" + ("Codon found: " + codonDict['name'])
+                cdsLastPos = currentCodonPos-3
+                break
+
+        cdsWithoutLastPiece = geneSequence[cdsStartingPos-1:cdsLastPos]
+        lastPiece = geneSequence[cdsLastPos:geneLength] #Protection thing
+
+        messageToSend += "\n" + ("CDS without last piece: " + cdsWithoutLastPiece)
+
+        as_bytes = map(str.encode, messageToSend)
+        content = b"".join(as_bytes)
+
+        await ctx.send("Sliced gene: ", file = discord.File(BytesIO(content), "slicedGene.txt"))
+
 #-------------------------------EVENTS-------------------------------#
 
 @client.event
@@ -190,7 +275,7 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client)) #Console on ready message
     
     #Adds current activity
-    await client.change_presence(activity=discord.Game(name='$help'))
+    await client.change_presence(activity=discord.Game(name= prefix + 'help'))
 
 @client.event
 async def on_voice_state_update(member, before, after):
