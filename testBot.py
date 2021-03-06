@@ -263,6 +263,7 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
 
         messageToSend += "\n" + ("CDS without last piece: " + cdsWithoutLastPiece)
 
+        #Taken from https://stackoverflow.com/questions/61786264/discord-py-send-long-messages
         as_bytes = map(str.encode, messageToSend)
         content = b"".join(as_bytes)
 
