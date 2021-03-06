@@ -211,7 +211,6 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
 
         #Variables for codon checking
         codonDict = {"name"  : ' ', "position" : 0}
-        currentCodon = " "
         currentCodonPos = 0
 
         #CDS info
@@ -259,7 +258,7 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
                 break
 
         cdsWithoutLastPiece = geneSequence[cdsStartingPos-1:cdsLastPos]
-        lastPiece = geneSequence[cdsLastPos:geneLength] #Protection thing
+        #lastPiece = geneSequence[cdsLastPos:geneLength] #Protection thing
 
         messageToSend += "\n" + ("CDS without last piece: " + cdsWithoutLastPiece)
 
