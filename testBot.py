@@ -200,8 +200,13 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
 
         siteText = soup.select('p')#Gets all the <p>'s in the site
 
+        #Gene info
         geneSequence = siteText[0].text #Extracts the first one, which contains the gene sequence in the case of justpaste.it
         geneLength = len(geneSequence)
+        numA = 0 #Number of A's
+        numT = 0 #Number of T's
+        numG = 0 #Number of G's
+        numC = 0 #Number of C's
 
         #Important codons
         startingCodon = "ATG"
@@ -226,6 +231,22 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
 
         messageToSend = ("Original gene sequece: " + geneSequence)
         messageToSend += "\n" + ("Gene length: " + str(geneLength))
+
+        counterSequence = ""
+        #Creates counter sequence and counts each base
+        for base in geneSequence:
+            if base == 'A':
+                counterSequence += 'T'
+                numA += 1
+            if base == 'T':
+                counterSequence += 'A'
+                numT += 1
+            if base == 'G':
+                counterSequence += 'C'
+                numG += 1
+            if base == 'C':
+                counterSequence += 'G'
+                numC += 1
 
         #Checks the gene until the end is reached
         while(currentCodonPos <= (geneLength-3)):
@@ -261,6 +282,13 @@ class usefulStuff(commands.Cog, name = "Useful Stuff"):
         #lastPiece = geneSequence[cdsLastPos:geneLength] #Protection thing
 
         messageToSend += "\n" + ("CDS without last piece: " + cdsWithoutLastPiece)
+        messageToSend += "\n" + ("Counter sequence: " + counterSequence)
+        messageToSend += "\n" + ("Counter sequence length: " + str(len(counterSequence)))
+        messageToSend += "\n" + ("Number of A's: " + str(numA))
+        messageToSend += "\n" + ("Number of T's: " + str(numT))
+        messageToSend += "\n" + ("Number of G's: " + str(numG))
+        messageToSend += "\n" + ("Number of C's: " + str(numC))
+        messageToSend += "\n" + ('GC percentage: '+ str((numG+numC)/(numA+numC+numG+numT)))
 
         #Taken from https://stackoverflow.com/questions/61786264/discord-py-send-long-messages
         as_bytes = map(str.encode, messageToSend)
