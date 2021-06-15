@@ -88,7 +88,7 @@ class dumbStuff(commands.Cog, name = "Dumb Stuff"):
 
     @commands.command(help = "Shows the amount of days since we went to San Mike :'(")
     async def sadmike(self, ctx):
-        ultimoSanMike = datetime.datetime(2019,11,7)
+        ultimoSanMike = datetime.datetime(2021,6,12)
         hoyEnFecha = datetime.datetime(datetime.datetime.now().year,datetime.datetime.now().month,datetime.datetime.now().day)
         diasDesdeSanMike = hoyEnFecha.date()-ultimoSanMike.date()
 
