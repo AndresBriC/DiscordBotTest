@@ -6,6 +6,8 @@ import pandas as pd
 import random
 import datetime
 
+from github import Github
+
 #For web scrapping
 import requests
 from bs4 import BeautifulSoup
@@ -18,6 +20,11 @@ load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 RIOT_API_KEY = os.getenv("RIOT_API_KEY")
+
+#Github api access
+GITHUB_TOKEN = os.getenv("ANDRESBRIC_GITHUB_TOKEN")
+github = Github("GITHUB_TOKEN")
+repository = github.get_user().get_repo('https://github.com/AndresBriC/DiscordBotTest') #Get reference to the bot repo
 
 prefix = "$" #Sets the prefix
 intents = discord.Intents.all() #Specifies intents
@@ -64,17 +71,23 @@ def memberIsBot(member):
 
 #Adds user to the leaderboard if not present, if not, adds 1 point to the user
 def updateLastToLeaveLeaderBoard(memberName):
+    #Gets the leaderboard csv from github
+    lastToLeaveLeaderboardCSV = repository.get_contents("LastToLeaveLeaderBoard.csv")
+
+    #Make a pandas dataframe from the csv in the repo
     leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
 
+    #Adds 1 point if the user exists
     if userExists(memberName, leaderboardDf) == True:
         index = getIndexOfUser(memberName, leaderboardDf)
         leaderboardDf.at[index, 'Score'] = leaderboardDf.loc[index]['Score'] + 1
         print("User was found")
-    else:
+    else: #If the user isn't in the leaderboard, it gets added and sets the score to 1
         leaderboardDf = leaderboardDf.append({'User':memberName,'Score':1}, ignore_index=True)
         print("User was added")
 
-    leaderboardDf.to_csv('LastToLeaveLeaderboard.csv')
+    #Updates the file in the repo, using the csv transformed back from the pandas dataframe
+    repository.update_file(lastToLeaveLeaderboardCSV.path, "Updates the LastToLeaveLeaderboard csv", leaderboardDf.to_csv('LastToLeaveLeaderboard.csv'), lastToLeaveLeaderboardCSV.sha, branch="main")
 
 #-------------------------------COMMANDS-------------------------------#
 
@@ -340,10 +353,10 @@ async def on_voice_state_update(member, before, after):
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
             print(member.name + " was the last to leave")
-            await generalTextChannel.send(random.choice([member.name + " is slow af lmao", member.name + " ate dirt", member.name + " es un huevo jodido", member.name + " was eaten by zombies"])) #Last to leave message
+            await generalTextChannel.send(random.choice([member.name + " is slow af lmao", member.name + " ate dirt", member.name + " es un huevo jodido", member.name + " was eaten by zombies", member.name + " wasn't paying attention"])) #Last to leave message
 
             #Updates the leaderboard
-            #updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
+            updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
 
 @client.event
 async def on_typing(channel, user, when):
