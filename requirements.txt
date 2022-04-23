@@ -1,28 +1,16 @@
-aiohttp==3.6.3
-astroid==2.4.2
-async-timeout==3.0.1
-attrs==20.3.0
-beautifulsoup4==4.9.3
-bs4==0.0.1
-certifi==2020.12.5
-chardet==3.0.4
-colorama==0.4.4
-discord.py==1.5.1
-idna==2.10
-isort==5.6.4
-lazy-object-proxy==1.4.3
-mccabe==0.6.1
-multidict==4.7.6
-numpy==1.19.4
-pandas==1.1.4
-pylint==2.6.0
-python-dateutil==2.8.1
-python-dotenv==0.15.0
-pytz==2020.4
-requests==2.25.1
-six==1.15.0
-soupsieve==2.2
-toml==0.10.2
-urllib3==1.26.3
-wrapt==1.12.1
-yarl==1.5.1
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: win-64
+@EXPLICIT
+https://repo.anaconda.com/pkgs/main/win-64/ca-certificates-2022.3.29-haa95532_1.conda
+https://repo.anaconda.com/pkgs/main/noarch/tzdata-2022a-hda174b7_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/vs2015_runtime-14.27.29016-h5e58377_2.conda
+https://repo.anaconda.com/pkgs/main/win-64/vc-14.2-h21ff451_1.conda
+https://repo.anaconda.com/pkgs/main/win-64/openssl-1.1.1n-h2bbff1b_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/sqlite-3.38.2-h2bbff1b_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/python-3.9.12-h6244533_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/certifi-2021.10.8-py39haa95532_2.conda
+https://repo.anaconda.com/pkgs/main/noarch/wheel-0.37.1-pyhd3eb1b0_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/wincertstore-0.2-py39haa95532_2.conda
+https://repo.anaconda.com/pkgs/main/win-64/setuptools-61.2.0-py39haa95532_0.conda
+https://repo.anaconda.com/pkgs/main/win-64/pip-21.2.4-py39haa95532_0.conda
