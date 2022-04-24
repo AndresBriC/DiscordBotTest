@@ -110,7 +110,7 @@ class dumbStuff(commands.Cog, name = "Dumb Stuff"):
     #Displays the LastToLeaveLeaderboard as a discord message, without indexes and headers
     @commands.command(help = "Shows who has left last the most.")
     async def leaderboard(self, ctx):
-        leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+        leaderboardDf = pd.read_csv('https://raw.githubusercontent.com/AndresBriC/DiscordBotTest/main/LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
         await ctx.send(leaderboardDf.to_string(index=False, header=False))
 
     #Sends a message for each word in lyrics until the 25th word
