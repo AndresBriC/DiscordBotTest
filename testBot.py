@@ -22,9 +22,9 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 RIOT_API_KEY = os.getenv("RIOT_API_KEY")
 
 #Github api access
-GITHUB_TOKEN = os.getenv("ANDRESBRIC_GITHUB_TOKEN")
-github = Github("GITHUB_TOKEN")
-repository = github.get_user().get_repo('https://github.com/AndresBriC/DiscordBotTest') #Get reference to the bot repo
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+g = Github(GITHUB_TOKEN)
+repository = g.get_repo('AndresBriC/DiscordBotTest') #Get reference to the bot repo
 
 prefix = "$" #Sets the prefix
 intents = discord.Intents.all() #Specifies intents
@@ -72,10 +72,10 @@ def memberIsBot(member):
 #Adds user to the leaderboard if not present, if not, adds 1 point to the user
 def updateLastToLeaveLeaderBoard(memberName):
     #Gets the leaderboard csv from github
-    lastToLeaveLeaderboardCSV = repository.get_contents("LastToLeaveLeaderBoard.csv")
+    lastToLeaveLeaderboardCSV = repository.get_contents("LastToLeaveLeaderboard.csv")
 
     #Make a pandas dataframe from the csv in the repo
-    leaderboardDf = pd.read_csv('LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
+    leaderboardDf = pd.read_csv('https://raw.githubusercontent.com/AndresBriC/DiscordBotTest/main/LastToLeaveLeaderboard.csv', index_col=0) #Used to keep track of last people to leave
 
     #Adds 1 point if the user exists
     if userExists(memberName, leaderboardDf) == True:
@@ -87,7 +87,7 @@ def updateLastToLeaveLeaderBoard(memberName):
         print("User was added")
 
     #Updates the file in the repo, using the csv transformed back from the pandas dataframe
-    repository.update_file(lastToLeaveLeaderboardCSV.path, "Updates the LastToLeaveLeaderboard csv", leaderboardDf.to_csv('LastToLeaveLeaderboard.csv'), lastToLeaveLeaderboardCSV.sha, branch="main")
+    repository.update_file(lastToLeaveLeaderboardCSV.path, "Updates the LastToLeaveLeaderboard csv", leaderboardDf.to_csv(), lastToLeaveLeaderboardCSV.sha, branch="main")
 
 #-------------------------------COMMANDS-------------------------------#
 
@@ -352,8 +352,9 @@ async def on_voice_state_update(member, before, after):
         
         #If the number of people in the voice channel is 0 and the user that left is not a bot
         if(inVoiceChannels == 0 and isBot == False):
+            leaveTextChoices = random.choice([member.name + " is slow af lmao", member.name + " ate dirt", member.name + " es un huevo jodido", member.name + " was eaten by zombies", member.name + " wasn't paying attention"])
             print(member.name + " was the last to leave")
-            await generalTextChannel.send(random.choice([member.name + " is slow af lmao", member.name + " ate dirt", member.name + " es un huevo jodido", member.name + " was eaten by zombies", member.name + " wasn't paying attention"])) #Last to leave message
+            await generalTextChannel.send(leaveTextChoices) #Last to leave message
 
             #Updates the leaderboard
             updateLastToLeaveLeaderBoard(member.name) #Need to move it to an online database
